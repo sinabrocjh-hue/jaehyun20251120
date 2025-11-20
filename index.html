@@ -3,93 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이재현의 자기소개</title>
+    <title>JavaScript 인터랙티브 데모</title>
     <style>
-        /* *********************************************
-         * 3단계: 배경 코드 (m-wave)를 여기에 붙여넣으세요! *
-         *********************************************
-        */
-        #background-wave {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* 배경이 내용 뒤로 가도록 설정 */
-            /* 이곳에 loading.io에서 복사한 CSS/SVG 코드가 들어갑니다. */
-        }
-
-        /* 자기소개서 내용 스타일 */
+        /* CSS: 디자인 스타일 */
         body {
-            font-family: 'Malgun Gothic', sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
             color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: transparent; /* 배경이 보이도록 투명 설정 */
         }
-
         .container {
-            width: 90%;
-            max-width: 800px;
-            padding: 40px;
-            background-color: rgba(255, 255, 255, 0.85); /* 내용 박스의 투명도 조정 */
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
             text-align: center;
         }
-
-        h1 {
-            color: #007acc;
-            border-bottom: 2px solid #007acc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        input[type="text"] {
+            width: calc(100% - 110px); /* 버튼 너비만큼 제외 */
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-
-        p {
-            line-height: 1.6;
-            text-align: left;
-            margin-bottom: 20px;
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-
-        .contact-info {
-            list-style: none;
-            padding: 0;
-            margin-top: 30px;
+        button:hover {
+            background-color: #0056b3;
         }
-
-        .contact-info li {
-            margin-bottom: 10px;
+        #result-display {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #007bff;
+            background-color: #e6f0ff;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+        #result-display p {
+            margin: 0;
+            font-size: 1.1em;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
-    
-    <div id="background-wave"></div>
 
     <div class="container">
-        <h1>안녕하세요, 조재현입니다.</h1>
-        <p><strong>생년월일:</strong> 20XX년 XX월 XX일</p>
+        <h1>💬 인터랙티브 입력 데모</h1>
         
-        <h2>🔥 자기소개 및 비전</h2>
-        <p>저는 [자신의 분야/직무]에서 [자신의 강점]을 발휘하는 개발자/디자이너/기획자입니다. [구체적인 경험이나 프로젝트]를 통해 [얻은 성과/배운 점]이 있으며, 특히 [관심 기술] 분야에 깊은 관심을 가지고 있습니다.</p>
-        <p>앞으로 [어떤 목표]를 가지고 [어떤 성장을 이룰지]에 대한 비전을 가지고 꾸준히 노력하고 있습니다.</p>
+        <label for="userInput">메시지를 입력하세요:</label><br>
+        <input type="text" id="userInput" placeholder="여기에 내용을 입력...">
+        <button onclick="displayInput()">결과 보기</button>
 
-        <h2>🛠️ 기술 스택 및 경력</h2>
-        <p>
-            **사용 기술:** [예: HTML, CSS, JavaScript, React, Python, Java, C++, SQL 등]<br>
-            **주요 경험:** [예: OO 프로젝트 (20XX.X ~ 20XX.X), XX 인턴십 (20XX.X ~ 20XX.X)]
-        </p>
+        <hr>
 
-        <h2>📧 연락처</h2>
-        <ul class="contact-info">
-            <li>📧 Email: sinabrocjh@hs.ac.kr </li>
-            <li>🔗 GitHub: [자신의 GitHub 프로필 링크]</li>
-        </ul>
+        <h2>✨ 실시간 결과</h2>
+        <div id="result-display">
+            <p id="outputMessage">여기에 입력한 메시지가 나타납니다.</p>
+        </div>
     </div>
+
+    <script>
+        /**
+         * 사용자의 입력을 받아 결과 영역에 동적으로 표시하는 함수
+         */
+        function displayInput() {
+            // 1. 입력 필드(id="userInput")에서 값 가져오기
+            const inputElement = document.getElementById('userInput');
+            const userText = inputElement.value;
+            
+            // 2. 결과를 출력할 요소(id="outputMessage") 가져오기
+            const outputElement = document.getElementById('outputMessage');
+            
+            // 3. 조건에 따라 동적으로 내용 변경하기
+            if (userText.trim() === "") {
+                // 입력된 내용이 없을 경우
+                outputElement.textContent = "⚠️ 아무것도 입력되지 않았습니다. 메시지를 입력해주세요.";
+                outputElement.style.color = "red";
+            } else {
+                // 입력된 내용이 있을 경우
+                outputElement.textContent = `입력하신 메시지: "${userText}"`;
+                outputElement.style.color = "#333";
+            }
+            
+            // (선택) 입력 필드 내용 초기화
+            inputElement.value = "";
+        }
+        
+        // (추가 기능) 엔터 키를 눌렀을 때도 함수가 실행되도록 설정
+        document.getElementById('userInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                displayInput();
+            }
+        });
+    </script>
 </body>
 </html>
