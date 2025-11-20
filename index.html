@@ -3,112 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript 인터랙티브 데모</title>
+    <title>숫자 맞추기 플래시 게임</title>
     <style>
-        /* CSS: 디자인 스타일 */
+        /* CSS: 게임 디자인 스타일 */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #e0f2f7; /* 밝은 하늘색 배경 */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .game-container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
         }
         h1 {
             color: #007bff;
-            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.2em;
         }
-        input[type="text"] {
-            width: calc(100% - 110px); /* 버튼 너비만큼 제외 */
-            padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+        #randomNumberDisplay {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ff5722; /* 주황색 */
+            margin: 30px 0;
+            height: 1.2em; /* 숫자가 없어도 높이 유지 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed #bbe4ed;
+            border-radius: 10px;
+            background-color: #f8fcfd;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
         }
-        button:hover {
+        button:active {
+            transform: scale(0.98);
+        }
+        #generateBtn {
+            background-color: #28a745; /* 초록색 */
+        }
+        #generateBtn:hover {
+            background-color: #218838;
+        }
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        #guessBtn {
+            background-color: #007bff; /* 파란색 */
+        }
+        #guessBtn:hover {
             background-color: #0056b3;
         }
-        #result-display {
-            margin-top: 20px;
-            padding: 15px;
-            border: 2px dashed #007bff;
-            background-color: #e6f0ff;
-            border-radius: 4px;
-            min-height: 50px;
-        }
-        #result-display p {
-            margin: 0;
-            font-size: 1.1em;
+        #message {
+            margin-top: 25px;
+            font-size: 1.3em;
             font-weight: bold;
+            min-height: 1.5em; /* 메시지가 없어도 높이 유지 */
+        }
+        .correct {
+            color: #28a745; /* 정답은 초록색 */
+        }
+        .wrong {
+            color: #dc3545; /* 오답은 빨간색 */
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>💬 인터랙티브 입력 데모</h1>
-        
-        <label for="userInput">메시지를 입력하세요:</label><br>
-        <input type="text" id="userInput" placeholder="여기에 내용을 입력...">
-        <button onclick="displayInput()">결과 보기</button>
+    <div class="game-container">
+        <h1>🔢 숫자 맞추기 게임!</h1>
+        <p>1부터 100 사이의 숫자를 맞춰보세요.</p>
 
-        <hr>
-
-        <h2>✨ 실시간 결과</h2>
-        <div id="result-display">
-            <p id="outputMessage">여기에 입력한 메시지가 나타납니다.</p>
+        <div id="randomNumberDisplay">?</div> <div class="controls">
+            <button id="generateBtn">새 숫자 생성</button>
+            
+            <input type="number" id="userGuess" placeholder="숫자를 입력하세요 (1-100)" min="1" max="100">
+            <button id="guessBtn">내 숫자 추측!</button>
         </div>
-    </div>
+
+        <div id="message"></div> </div>
 
     <script>
-        /**
-         * 사용자의 입력을 받아 결과 영역에 동적으로 표시하는 함수
-         */
-        function displayInput() {
-            // 1. 입력 필드(id="userInput")에서 값 가져오기
-            const inputElement = document.getElementById('userInput');
-            const userText = inputElement.value;
+        // JavaScript: 게임 로직
+        let targetNumber; // 맞춰야 할 임의의 숫자
+        const minNum = 1;
+        const maxNum = 100;
+
+        const randomNumberDisplay = document.getElementById('randomNumberDisplay');
+        const userGuessInput = document.getElementById('userGuess');
+        const messageDisplay = document.getElementById('message');
+        const generateButton = document.getElementById('generateBtn');
+        const guessButton = document.getElementById('guessBtn');
+
+        // 게임 초기화 및 새로운 숫자 생성 함수
+        function generateNewNumber() {
+            targetNumber = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; // 1 ~ 100 사이의 숫자
             
-            // 2. 결과를 출력할 요소(id="outputMessage") 가져오기
-            const outputElement = document.getElementById('outputMessage');
+            // 디버깅용: 실제 게임에서는 숨겨야 합니다!
+            // console.log("정답 (디버깅): " + targetNumber); 
             
-            // 3. 조건에 따라 동적으로 내용 변경하기
-            if (userText.trim() === "") {
-                // 입력된 내용이 없을 경우
-                outputElement.textContent = "⚠️ 아무것도 입력되지 않았습니다. 메시지를 입력해주세요.";
-                outputElement.style.color = "red";
-            } else {
-                // 입력된 내용이 있을 경우
-                outputElement.textContent = `입력하신 메시지: "${userText}"`;
-                outputElement.style.color = "#333";
-            }
-            
-            // (선택) 입력 필드 내용 초기화
-            inputElement.value = "";
+            randomNumberDisplay.textContent = '?'; // 다시 물음표로 초기화
+            messageDisplay.textContent = '새로운 숫자가 생성되었습니다. 맞춰보세요!';
+            messageDisplay.className = ''; // 메시지 색상 초기화
+            userGuessInput.value = ''; // 입력 필드 초기화
+            userGuessInput.focus(); // 입력 필드에 포커스
+            guessButton.disabled = false; // 추측 버튼 활성화
         }
-        
-        // (추가 기능) 엔터 키를 눌렀을 때도 함수가 실행되도록 설정
-        document.getElementById('userInput').addEventListener('keypress', function(event) {
+
+        // 사용자가 숫자를 추측했을 때 실행되는 함수
+        function checkGuess() {
+            const userGuess = parseInt(userGuessInput.value); // 사용자 입력 숫자로 변환
+
+            // 입력값 유효성 검사
+            if (isNaN(userGuess) || userGuess < minNum || userGuess > maxNum) {
+                messageDisplay.textContent = `🚨 ${minNum}에서 ${maxNum} 사이의 유효한 숫자를 입력해주세요.`;
+                messageDisplay.className = 'wrong';
+                return; // 함수 종료
+            }
+
+            // 정답 확인
+            if (userGuess === targetNumber) {
+                messageDisplay.textContent = `🎉 축하합니다! 정답은 ${targetNumber}였습니다!`;
+                messageDisplay.className = 'correct';
+                randomNumberDisplay.textContent = targetNumber; // 정답 공개
+                guessButton.disabled = true; // 정답 맞췄으니 추측 버튼 비활성화
+            } else if (userGuess < targetNumber) {
+                messageDisplay.textContent = `⬆️ ${userGuess}! 더 큰 숫자를 찾아보세요.`;
+                messageDisplay.className = 'wrong';
+            } else { // userGuess > targetNumber
+                messageDisplay.textContent = `⬇️ ${userGuess}! 더 작은 숫자를 찾아보세요.`;
+                messageDisplay.className = 'wrong';
+            }
+            userGuessInput.value = ''; // 입력 필드 초기화
+            userGuessInput.focus(); // 입력 필드에 포커스
+        }
+
+        // 이벤트 리스너 연결
+        generateButton.addEventListener('click', generateNewNumber);
+        guessButton.addEventListener('click', checkGuess);
+        userGuessInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
-                displayInput();
+                checkGuess();
             }
         });
+
+        // 페이지 로드 시 게임 초기화
+        generateNewNumber();
     </script>
 </body>
 </html>
