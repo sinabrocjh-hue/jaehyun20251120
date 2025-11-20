@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 인터랙티브 데모</title>
+    <style>
+        /* CSS: 디자인 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: calc(100% - 110px); /* 버튼 너비만큼 제외 */
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result-display {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #007bff;
+            background-color: #e6f0ff;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+        #result-display p {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💬 인터랙티브 입력 데모</h1>
+        
+        <label for="userInput">메시지를 입력하세요:</label><br>
+        <input type="text" id="userInput" placeholder="여기에 내용을 입력...">
+        <button onclick="displayInput()">결과 보기</button>
+
+        <hr>
+
+        <h2>✨ 실시간 결과</h2>
+        <div id="result-display">
+            <p id="outputMessage">여기에 입력한 메시지가 나타납니다.</p>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 사용자의 입력을 받아 결과 영역에 동적으로 표시하는 함수
+         */
+        function displayInput() {
+            // 1. 입력 필드(id="userInput")에서 값 가져오기
+            const inputElement = document.getElementById('userInput');
+            const userText = inputElement.value;
+            
+            // 2. 결과를 출력할 요소(id="outputMessage") 가져오기
+            const outputElement = document.getElementById('outputMessage');
+            
+            // 3. 조건에 따라 동적으로 내용 변경하기
+            if (userText.trim() === "") {
+                // 입력된 내용이 없을 경우
+                outputElement.textContent = "⚠️ 아무것도 입력되지 않았습니다. 메시지를 입력해주세요.";
+                outputElement.style.color = "red";
+            } else {
+                // 입력된 내용이 있을 경우
+                outputElement.textContent = `입력하신 메시지: "${userText}"`;
+                outputElement.style.color = "#333";
+            }
+            
+            // (선택) 입력 필드 내용 초기화
+            inputElement.value = "";
+        }
+        
+        // (추가 기능) 엔터 키를 눌렀을 때도 함수가 실행되도록 설정
+        document.getElementById('userInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                displayInput();
+            }
+        });
+    </script>
+</body>
+</html>
